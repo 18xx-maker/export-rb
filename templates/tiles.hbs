@@ -1,0 +1,25 @@
+# File original exported from 18xx-maker/export-rb
+# https://github.com/18xx-maker/export-rb
+# rubocop:disable Layout/LineLength
+
+module Tile
+  module Config
+    WHITE = {
+      'blank' => '',
+      'town' => 't=r:0',
+      'city' => 'c=r:0'
+    }.freeze
+
+    {{#each colors}}
+    {{{name}}} = {
+      {{#each tiles}}
+      '{{{id}}}' => '{{{encoding}}}',
+      {{/each}}
+    }.freeze
+
+    {{/each}}
+    COLORS = %i[{{{symbols}}}].freeze
+  end
+end
+
+# rubocop:enable Layout/LineLength

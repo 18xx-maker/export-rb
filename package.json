@@ -1,0 +1,40 @@
+{
+  "name": "@18xx-maker/export-rb",
+  "version": "0.0.0",
+  "description": "Exports 18xx-maker data into ruby files",
+  "main": "index.games.js",
+  "repository": "https://github.com/18xx-maker/export-rb",
+  "author": "Christopher Giroir <kelsin@valefor.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "run-p build:**",
+    "build:nogames": "browserify -g uglifyify -t hbsfy -d -e index.js -o dist/18xx-maker.export-rb.js -s xxMaker",
+    "build:games": "browserify -g uglifyify -t hbsfy -d -e index.games.js -o dist/18xx-maker.export-rb.games.js -s xxMaker"
+  },
+  "bin": {
+    "18xx-export-rb": "cli.js"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.1",
+    "hbsfy": "^2.8.1",
+    "husky": ">=4",
+    "lint-staged": ">=10",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.5",
+    "uglifyify": "^5.0.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
+  },
+  "dependencies": {
+    "@18xx-maker/games": "^0.7.5",
+    "commander": "^5.1.0",
+    "handlebars": "^4.7.6",
+    "ramda": "^0.27.0"
+  }
+}

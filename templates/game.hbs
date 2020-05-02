@@ -1,0 +1,143 @@
+# File original exported from 18xx-maker/export-rb
+# https://github.com/18xx-maker/export-rb
+# rubocop:disable Lint/RedundantCopDisableDirective, Layout/LineLength
+
+module Game
+  module Config
+    class G{{name}} < Base
+      CURRENCY_FORMAT_STR = '{{{game.currency}}}'
+
+      {{#if game.bankPerPlayer}}
+      BANK_CASH = {
+        {{#each game.bank}}
+        {{player}} => {{bank}},
+        {{/each}}
+      }.freeze
+      {{else}}
+      BANK_CASH = {{game.bank}}
+      {{/if}}
+
+      {{#if game.certLimitPerPlayer}}
+      CERT_LIMIT = {
+        {{#each game.certLimit}}
+        {{player}} => {{certLimit}},
+        {{/each}}
+      }.freeze
+      {{else}}
+      CERT_LIMIT = {{game.certLimit}}
+      {{/if}}
+
+      {{#if game.startingCashPerPlayer}}
+      STARTING_CASH = {
+        {{#each game.startingCash}}
+        {{player}} => {{startingCash}},
+        {{/each}}
+      }.freeze
+      {{else}}
+      STARTING_CASH = {{game.startingCash}}
+      {{/if}}
+
+      HEXES = {
+        {{#each game.hexes}}
+        {{{color}}}: {
+          {{#each hexes}}
+          %w[{{#each hexes as |hex|}}{{hex}}{{#unless @last}} {{/unless}}{{/each}}] => '{{{encoding}}}',
+          {{/each}}
+        }{{#unless @last}},{{/unless}}
+        {{/each}}
+      }.freeze
+
+      TILES = {
+        {{#each game.tiles}}
+        '{{id}}' => {{quantity}},
+        {{/each}}
+      }.freeze
+
+      LOCATION_NAMES = {
+        {{#each game.locationNames}}
+        '{{coord}}' => '{{{name}}}',
+        {{/each}}
+      }.freeze
+
+      # rubocop:disable Lint/EmptyExpression, Lint/EmptyInterpolation
+      MARKET = [
+        {{#each game.market}}
+        %{{#if containsNil}}W{{else}}w{{/if}}[{{#each row}}{{{value}}}{{#unless @last}} {{/unless}}{{/each}}],
+        {{/each}}
+      ].freeze
+      # rubocop:enable Lint/EmptyExpression, Lint/EmptyInterpolation
+
+      PHASES = [
+        {{#each game.phases}}
+        {
+          name: '{{{ name }}}',
+          operating_rounds: {{{ rounds }}},
+          train_limit: {{{ limit }}},
+          tiles: %i[{{#each tiles}}{{{ . }}}{{#unless @last}} {{/unless}}{{/each}}].freeze,
+          on: '{{{ on }}}',
+        }.freeze,
+        {{/each}}
+      ].freeze
+
+      TRAINS = [
+        {{#each game.trains}}
+        {
+          name: '{{{name}}}',
+          distance: {{#if distance}}{{distance}},{{else}}999, #TODO{{/if}}
+          price: {{price}},
+          {{#if rusts_on}}
+          rusts_on: '{{rusts_on}}',
+          {{/if}}
+          num: {{num}},
+          {{#if available_on}}
+          available_on: '{{{available_on}}}',
+          {{/if}}
+          {{#if discount}}
+          discount: {
+            {{#each discount}}
+            '{{{name}}}' => {{discount}},
+            {{/each}}
+          }
+          {{/if}}
+        }{{#unless @last}},{{/unless}}
+        {{/each}}
+      ].freeze
+
+      COMPANIES = [
+        {{#each game.privates}}
+        {
+          name: '{{{name}}}',
+          value: {{{value}}},
+          revenue: {{revenue}},
+          {{#if description}}
+          desc: '{{{description}}}',
+          {{else}}
+          desc: 'No special abilities.',
+          {{/if}}
+          {{#if players}}
+          min_players: {{{players}}},
+          {{/if}}
+        },
+        {{/each}}
+      ].freeze
+
+      CORPORATIONS = [
+        {{#each game.companies}}
+        {
+          sym: '{{{abbrev}}}',
+          logo: {{#if logo}}'{{{logo}}}',{{else}}'', # TODO{{/if}}
+          name: '{{{name}}}',
+          tokens: [{{#each tokens}}{{label}}{{#unless @last}}, {{/unless}}{{/each}}],
+          float_percent: {{#if floatPercent}}{{floatPercent}},{{else}}60, # TODO{{/if}}
+          {{#if home}}
+          coordinates: '{{home}}',
+          {{/if}}
+          color: '{{color}}'
+        }{{#unless @last}},{{/unless}}
+        {{/each}}
+      ].freeze
+    end
+  end
+end
+
+# rubocop:enable Lint/RedundantCopDisableDirective, Layout/LineLength
