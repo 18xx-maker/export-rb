@@ -8,7 +8,8 @@ const map = require("ramda/src/map");
 const hex = require("./hex");
 
 const toSymbol = (name) => name.replace(/\//, "").toLowerCase();
-const toModule = (name) => name.replace(/\//, "").toUpperCase();
+const toModule = (name) =>
+  hex.compileColor({ color: name }).replace(/\//, "").toUpperCase();
 
 // Create the json structure needed for our tiles template
 const compileTiles = (tiles) => {

@@ -3,13 +3,16 @@
 # rubocop:disable Layout/LineLength
 
 module Engine
-  module Tile
-    module Config
+  module Config
+    module Tile
       WHITE = {
         'blank' => '',
         'town' => 't=r:0',
         'city' => 'c=r:0'
       }.freeze
+
+      # Red tiles don't exist yet
+      RED = {}.freeze
 
       {{#each colors}}
       {{{name}}} = {
@@ -19,7 +22,8 @@ module Engine
       }.freeze
 
       {{/each}}
-      COLORS = %i[{{{symbols}}}].freeze
+
+      COLORS = %i[white {{{symbols}}} red].freeze
     end
   end
 end
