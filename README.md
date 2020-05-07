@@ -21,7 +21,7 @@ you end up with a script that can output all tiles, or game files directly:
 # Render the tiles file
 18xx-export-rb tiles
 
-# Render some agmes
+# Render some games
 18xx-export-rb game 1830
 18xx-export-rb game 1889
 ```
