@@ -42,7 +42,7 @@ const compileTiles = (tiles) => {
       colors[color] = {};
     }
 
-    colors[color][tile.id] = hex.compileHex(tile);
+    colors[color][id] = hex.compileHex(tile);
   }, tiles);
 
   return {
