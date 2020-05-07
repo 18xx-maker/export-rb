@@ -75,7 +75,9 @@ module Engine
             operating_rounds: {{{ rounds }}},
             train_limit: {{{ limit }}},
             tiles: %i[{{#each tiles}}{{{ . }}}{{#unless @last}} {{/unless}}{{/each}}].freeze,
+            {{#if on}}
             on: '{{{ on }}}',
+            {{/if}}
           }.freeze,
           {{/each}}
         ].freeze

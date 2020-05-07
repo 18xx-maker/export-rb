@@ -197,9 +197,9 @@ const compileTrains = (game) => {
       distance:
         t.distance || (isNaN(parseInt(t.name)) ? 999 : parseInt(t.name)),
       price: t.price || 0,
-      rusts_on: t.rusts_on,
+      rusts_on: t.rustsOn,
       num: t.quantity === "∞" ? 99 : t.quantity,
-      available_on: t.available_on,
+      available_on: t.availableOn,
       discount: t.discount
         ? mapObjIndexed(
             (discount, name) => ({
@@ -230,12 +230,10 @@ const compilePhases = (game) => {
   return map(
     (p) => ({
       name: p.name || p.train,
-      on: p.train || p.name,
+      on: p.on,
       limit: p.limit,
       tiles: tileColors.slice(0, tileColors.indexOf(p.tiles) + 1),
       rounds: p.rounds,
-      purchasePrivates: p.purchasePrivates,
-      events: p.events,
     }),
     game.phases || []
   );
