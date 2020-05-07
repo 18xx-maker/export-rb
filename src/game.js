@@ -107,26 +107,26 @@ const findHome = (abbrev, hexes) => {
 
 // Hardcode to Rails on Board colors for now
 const colors = {
-  black: "#0a0a0a",
-  blue: "#0a70b3",
-  brightGreen: "#7bb137",
-  brown: "#881a1e",
+  black: "#37383a",
+  blue: "#0189d1",
+  brightGreen: "#76a042",
+  brown: "#7b352a",
   gold: "#e09001",
   gray: "#9a9a9d",
-  green: "#008f4f",
+  green: "#237333",
   lavender: "#baa4cb",
   lightBlue: "#37b2e2",
   lightBrown: "#b58168",
   lime: "#bdbd00",
-  navy: "#004d95",
   natural: "#fbf4de",
-  orange: "#eb6f0e",
-  pink: "#ec767c",
-  red: "#dd0030",
-  turquoise: "#235758",
-  violet: "#4d2674",
+  navy: "#004d95",
+  orange: "#f48221",
+  pink: "rgb(193,60,125)",
+  red: "#d81e3e",
+  turquoise: "#00a99e",
+  violet: "#7f528b",
   white: "#ffffff",
-  yellow: "#fcea18",
+  yellow: "#f8c200",
 };
 
 const LOGO_RE = /[& ]/g;
