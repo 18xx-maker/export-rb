@@ -83,7 +83,7 @@ const compilePrivates = (game) => {
       value: is(String, p.price) ? `'${p.price}'` : p.price,
       revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
       description: (p.description || "").replace(/'/g, "\\'"),
-      players: p.players,
+      minPlayers: p.minPlayers,
     }),
     game.privates || []
   );

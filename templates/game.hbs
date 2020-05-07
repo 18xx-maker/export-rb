@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # File original exported from 18xx-maker/export-rb
 # https://github.com/18xx-maker/export-rb
 # rubocop:disable Lint/RedundantCopDisableDirective, Layout/LineLength
@@ -117,8 +119,8 @@ module Engine
             {{else}}
             desc: 'No special abilities.',
             {{/if}}
-            {{#if players}}
-            min_players: {{{players}}},
+            {{#if minPlayers}}
+            min_players: {{{minPlayers}}},
             {{/if}}
           },
           {{/each}}
