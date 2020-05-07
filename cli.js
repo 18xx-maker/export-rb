@@ -11,19 +11,13 @@ const exportRb = require("./index.games");
 program.version(pkg.version, "-v, --version", "output the current version");
 
 // Exports tiles
-program
-  .command("tiles")
-  .option("-o, --output <output>", "Output to a file, defaults to STDOUT", "-")
-  .action(({ output }) => {
-    console.log(exportRb.renderTiles(exportRb.tiles));
-  });
+program.command("tiles").action(() => {
+  console.log(exportRb.renderTiles(exportRb.tiles));
+});
 
 // Exports games
-program
-  .command("game <game>")
-  .option("-o, --output <output>", "Output to a file, defaults to STDOUT", "-")
-  .action((game) => {
-    console.log(exportRb.renderGame(exportRb.games[game]));
-  });
+program.command("game <game>").action((game) => {
+  console.log(exportRb.renderGame(exportRb.games[game]));
+});
 
 program.parse();
