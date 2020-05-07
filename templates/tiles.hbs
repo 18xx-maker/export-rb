@@ -8,7 +8,7 @@ module Engine
       WHITE = {
         'blank' => '',
         'town' => 't=r:0',
-        'city' => 'c=r:0'
+        'city' => 'c=r:0',
       }.freeze
 
       # Red tiles don't exist yet
@@ -17,7 +17,7 @@ module Engine
       {{#each colors}}
       {{{name}}} = {
         {{#each tiles}}
-        '{{{id}}}' => '{{{encoding}}}',
+        {{#if broken}}# {{/if}}'{{{id}}}' => '{{{encoding}}}',
         {{/each}}
       }.freeze
 

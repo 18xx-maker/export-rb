@@ -43,20 +43,18 @@ const compileTiles = (tiles) => {
       colors[color] = {};
     }
 
-    colors[color][id] = hex.compileHex(tile);
+    colors[color][id] = {
+      id,
+      encoding: hex.compileHex(tile),
+      broken: tile.broken,
+    };
   }, tiles);
 
   return {
     colors: map(
       (c) => ({
         name: toModule(c),
-        tiles: map(
-          (t) => ({
-            id: t,
-            encoding: colors[c][t],
-          }),
-          keys(colors[c])
-        ),
+        tiles: map((t) => colors[c][t], keys(colors[c])),
       }),
       keys(colors)
     ),
