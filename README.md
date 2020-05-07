@@ -22,8 +22,8 @@ you end up with a script that can output all tiles, or game files directly:
 18xx-export-rb tiles
 
 # Render some agmes
-  18xx-export-rb game 1830
-  18xx-export-rb game 1889
+18xx-export-rb game 1830
+18xx-export-rb game 1889
 ```
 
 ### Node
