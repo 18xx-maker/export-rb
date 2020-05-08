@@ -1,4 +1,6 @@
 const handlebars = require("handlebars");
+handlebars.registerPartial("Phases", "{{{game.phases}}}");
+handlebars.registerPartial("Companies", "{{{game.privates}}}");
 const gameTemplate = require("../templates/game.hbs");
 
 const any = require("ramda/src/any");
@@ -77,15 +79,23 @@ const compileCurrency = (game) => {
 };
 
 const compilePrivates = (game) => {
-  return map(
-    (p) => ({
-      name: p.name,
-      value: is(String, p.price) ? `'${p.price}'` : p.price,
-      revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
-      description: (p.description || "").replace(/'/g, "\\'"),
-      minPlayers: p.minPlayers,
-    }),
-    game.privates || []
+  return (
+    JSON.stringify(
+      map(
+        (p) => ({
+          name: p.name,
+          value: is(String, p.price) ? `'${p.price}'` : p.price,
+          revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
+          description: (p.description || "").replace(/'/g, "\\'"),
+          min_players: p.minPlayers,
+          sym: p.sym,
+          abilities: p.abilities,
+        }),
+        game.privates || []
+      ),
+      null,
+      2
+    ) + "\n"
   );
 };
 
@@ -197,9 +207,9 @@ const compileTrains = (game) => {
       distance:
         t.distance || (isNaN(parseInt(t.name)) ? 999 : parseInt(t.name)),
       price: t.price || 0,
-      rusts_on: t.rustsOn,
+      rusts_on: t.rust,
       num: t.quantity === "∞" ? 99 : t.quantity,
-      available_on: t.availableOn,
+      available_on: t.available,
       discount: t.discount
         ? mapObjIndexed(
             (discount, name) => ({
@@ -227,15 +237,23 @@ const compileName = (game) => {
 
 const tileColors = ["yellow", "green", "brown", "gray"];
 const compilePhases = (game) => {
-  return map(
-    (p) => ({
-      name: p.name || p.train,
-      on: p.on,
-      limit: p.limit,
-      tiles: tileColors.slice(0, tileColors.indexOf(p.tiles) + 1),
-      rounds: p.rounds,
-    }),
-    game.phases || []
+  return (
+    JSON.stringify(
+      map(
+        (p) => ({
+          name: p.name || p.train,
+          on: p.on,
+          train_limit: p.limit,
+          tiles: tileColors.slice(0, tileColors.indexOf(p.tiles) + 1),
+          operating_rounds: p.rounds,
+          buy_companies: p.buy_companies,
+          events: p.events,
+        }),
+        game.phases || []
+      ),
+      null,
+      2
+    ) + "\n"
   );
 };
 
