@@ -4,10 +4,14 @@
 # https://github.com/18xx-maker/export-rb
 # rubocop:disable Lint/RedundantCopDisableDirective, Layout/LineLength
 
+require_relative 'load'
+
 module Engine
   module Config
     module Game
       module G{{name}}
+        extend Game::Load
+
         CURRENCY_FORMAT_STR = '{{{game.currency}}}'
 
         {{#if game.bankPerPlayer}}
@@ -70,19 +74,9 @@ module Engine
         ].freeze
         # rubocop:enable Lint/EmptyExpression, Lint/EmptyInterpolation
 
-        PHASES = [
-          {{#each game.phases}}
-          {
-            name: '{{{ name }}}',
-            operating_rounds: {{{ rounds }}},
-            train_limit: {{{ limit }}},
-            tiles: %i[{{#each tiles}}{{{ . }}}{{#unless @last}} {{/unless}}{{/each}}].freeze,
-            {{#if on}}
-            on: '{{{ on }}}',
-            {{/if}}
-          }.freeze,
-          {{/each}}
-        ].freeze
+        PHASES = load_phases(<<~PHASES_JSON)
+          {{> Phases }}
+        PHASES_JSON
 
         TRAINS = [
           {{#each game.trains}}
@@ -108,23 +102,9 @@ module Engine
           {{/each}}
         ].freeze
 
-        COMPANIES = [
-          {{#each game.privates}}
-          {
-            name: '{{{name}}}',
-            value: {{{value}}},
-            revenue: {{revenue}},
-            {{#if description}}
-            desc: '{{{description}}}',
-            {{else}}
-            desc: 'No special abilities.',
-            {{/if}}
-            {{#if minPlayers}}
-            min_players: {{{minPlayers}}},
-            {{/if}}
-          },
-          {{/each}}
-        ].freeze
+        COMPANIES = load_companies(<<~COMPANIES_JSON)
+          {{> Companies }}
+        COMPANIES_JSON
 
         CORPORATIONS = [
           {{#each game.companies}}
