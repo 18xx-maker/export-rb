@@ -1,6 +1,6 @@
 {
   "name": "@18xx-maker/export-rb",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Exports 18xx-maker data into ruby files",
   "main": "index.games.js",
   "repository": "https://github.com/18xx-maker/export-rb",
