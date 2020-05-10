@@ -61,8 +61,13 @@ const compileTiles = (game) => {
   return map((id) => {
     let tile = game.tiles[id];
 
+    let hex = undefined;
+    let color = undefined;
+
     return {
       id,
+      color: tile.color && compileColor(tile),
+      code: tile.color && compileHex(tile),
       quantity: is(Number, tile) ? tile : tile.quantity || 1,
     };
   }, keys(game.tiles || {}));
@@ -86,7 +91,7 @@ const compilePrivates = (game) => {
           name: p.name,
           value: is(String, p.price) ? `'${p.price}'` : p.price,
           revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
-          description: (p.description || "").replace(/'/g, "\\'"),
+          desc: (p.description || "").replace(/'/g, "\\'"),
           min_players: p.minPlayers,
           sym: p.sym,
           abilities: p.abilities,
@@ -224,15 +229,19 @@ const compileTrains = (game) => {
   );
 };
 
-const compileName = (game) => {
-  const match = game.match(/^([0-9]*)(.*)$/);
+const compileModuleName = (name) => {
+  return name.replace(/\ /, "");
+};
+
+const compileFileName = (name) => {
+  const match = name.match(/^([0-9]*)(.*)$/);
   const numbers = match[1];
   const words = match[2].toLowerCase();
-  let name = numbers;
+  let filename = numbers;
   if (words !== "") {
-    name += `_${words}`;
+    filename += `_${words}`;
   }
-  return name;
+  return filename;
 };
 
 const tileColors = ["yellow", "green", "brown", "gray"];
@@ -312,12 +321,13 @@ const compileGame = (game, name) => {
 
 // Output the rendered game
 const renderGame = (game) => {
-  const name = compileName(game.info.title);
-  game = compileGame(game, name);
+  const filename = compileFileName(game.info.title);
+  const modulename = compileModuleName(game.info.title);
+  game = compileGame(game, filename);
 
   return gameTemplate({
     game,
-    name,
+    name: modulename,
   });
 };
 

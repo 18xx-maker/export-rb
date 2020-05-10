@@ -56,7 +56,15 @@ module Engine
 
         TILES = {
           {{#each game.tiles}}
-          '{{id}}' => {{quantity}},
+          {{#if color}}
+          '{{id}}' => {
+            count: {{{quantity}}},
+            color: :{{{color}}},
+            code: '{{{code}}}'
+          },
+          {{else}}
+          '{{id}}' => {{{quantity}}},
+          {{/if}}
           {{/each}}
         }.freeze
 
