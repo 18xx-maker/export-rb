@@ -83,10 +83,10 @@ const compileOffboard = (hex) => {
   }
 
   let colors = map((r) => {
-    if (r.cost.match(/^D/)) {
+    if (`${r.value || r.revenue || r.cost || 0}`.match(/^D/)) {
       return `diesel_${r.cost.replace(/^D/, "")}`;
     }
-    return `${r.color}_${r.cost}`;
+    return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
   }, hex.offBoardRevenue.revenues);
 
   return [`o=r:${colors.join("|")}`];
