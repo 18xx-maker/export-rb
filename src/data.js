@@ -1,64 +1,49 @@
 const is = require("ramda/src/is");
-const map = require("ramda/src/map");
+const reduce = require("ramda/src/reduce");
 
 const compileBank = (game) => {
   if (game.bank) {
-    return {
-      bankPerPlayer: false,
-      bank: game.bank,
-    };
+    return game.bank === "∞" ? 99999 : game.bank;
   }
 
-  return {
-    bankPerPlayer: true,
-    bank: map(
-      (p) => ({
-        player: p.number,
-        bank: p.bank,
-      }),
-      game.players || []
-    ),
-  };
+  return reduce(
+    (b, p) => ({
+      ...b,
+      [p.number]: p.bank,
+    }),
+    {},
+    game.players || []
+  );
 };
 
 const compileCertLimit = (game) => {
   if (game.certLimit) {
-    return {
-      certLimitPerPlayer: false,
-      certLimit: game.certLimit,
-    };
+    return game.certLimit;
   }
 
-  return {
-    certLimitPerPlayer: true,
-    certLimit: map(
-      (p) => ({
-        player: p.number,
-        certLimit: p.certLimit,
-      }),
-      game.players || []
-    ),
-  };
+  return reduce(
+    (c, p) => ({
+      ...c,
+      [p.number]: p.certLimit,
+    }),
+    {},
+    game.players || []
+  );
 };
 
 const compileStartingCash = (game) => {
   if (game.capital) {
-    return {
-      startingCashPerPlayer: false,
-      startingCash: game.capital,
-    };
+    return game.capital;
   }
 
-  return {
-    startingCashPerPlayer: true,
-    startingCash: map(
-      (p) => ({
-        player: p.number,
-        startingCash: p.capital,
-      }),
-      game.players || []
-    ),
-  };
+  return reduce(
+    (c, p) => ({
+      ...c,
+      [p.number]: p.capital,
+    }),
+    {},
+    game.players || []
+  );
 };
 
 exports.compileBank = compileBank;

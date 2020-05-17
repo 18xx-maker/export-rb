@@ -129,7 +129,7 @@ const compileTrackGauge = (gauge) => {
   switch (gauge) {
     case "narrow":
       return ",t:n";
-    case "double":
+    case "dual":
       return ",t:d";
     case "line":
       return ",t:l";

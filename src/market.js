@@ -3,18 +3,14 @@ const is = require("ramda/src/is");
 const isNil = require("ramda/src/isNil");
 const map = require("ramda/src/map");
 
-const compileCell = (cell) => ({
-  value: cell
+const compileCell = (cell) =>
+  cell
     ? `${cell.value ? cell.value : cell.label ? cell.label : cell}${
         cell.par ? "p" : ""
       }${cell.legend !== undefined ? ["y", "o", "b"][cell.legend] : ""}`
-    : "#{}",
-});
+    : "";
 
-const compileRow = (row) => ({
-  row: map(compileCell, row),
-  containsNil: any(isNil, row),
-});
+const compileRow = (row) => map(compileCell, row);
 
 const compileMarket = (game) => {
   let market = game.stock.market;

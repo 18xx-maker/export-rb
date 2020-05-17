@@ -27,6 +27,7 @@ const { compileMarket } = require("./market");
 // Takes a hex and returns the first name we can find on it
 const findName = (hex) => {
   let possibles = [
+    ...[{ name: hex.name }],
     ...(hex.cities || []),
     ...(hex.centerTowns || []),
     ...(hex.towns || []),
@@ -44,33 +45,38 @@ const compileLocationNames = (game) => {
       if (!name) {
         return names;
       }
-      return [
+      return {
         ...names,
-        {
-          coord: hex.hexes[0],
-          name,
-        },
-      ];
+        [hex.hexes[0]]: name,
+      };
     },
-    [],
+    {},
     game.map.hexes
   );
 };
 
 const compileTiles = (game) => {
-  return map((id) => {
-    let tile = game.tiles[id];
+  return reduce(
+    (tiles, id) => {
+      let tile = game.tiles[id];
 
-    let hex = undefined;
-    let color = undefined;
+      let hex = undefined;
+      let color = undefined;
 
-    return {
-      id,
-      color: tile.color && compileColor(tile),
-      code: tile.color && compileHex(tile),
-      quantity: is(Number, tile) ? tile : tile.quantity || 1,
-    };
-  }, keys(game.tiles || {}));
+      return {
+        ...tiles,
+        [id]: is(Number, tile)
+          ? tile
+          : {
+              count: tile.quantity || 1,
+              color: tile.color,
+              code: compileHex(tile),
+            },
+      };
+    },
+    {},
+    keys(game.tiles || {})
+  );
 };
 
 const compileCurrency = (game) => {
@@ -78,29 +84,22 @@ const compileCurrency = (game) => {
     return "$%d";
   }
 
-  return {
-    currency: game.info.currency.replace(/\#/, "%d"),
-  };
+  return game.info.currency.replace(/\#/, "%d");
 };
 
 const compilePrivates = (game) => {
-  return (
-    JSON.stringify(
-      map(
-        (p) => ({
-          name: p.name,
-          value: is(String, p.price) ? `'${p.price}'` : p.price,
-          revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
-          desc: (p.description || "").replace(/'/g, "\\'"),
-          min_players: p.minPlayers,
-          sym: p.sym,
-          abilities: p.abilities,
-        }),
-        game.privates || []
-      ),
-      null,
-      2
-    ) + "\n"
+  return map(
+    (p) => ({
+      name: p.name,
+      value: p.price,
+      debt: p.debt,
+      revenue: is(Array, p.revenue) ? p.revenue[0] : p.revenue || 0,
+      desc: p.description || "No special abilities.",
+      min_players: p.minPlayers,
+      sym: p.sym,
+      abilities: p.abilities,
+    }),
+    game.privates || []
   );
 };
 
@@ -193,12 +192,12 @@ const compileCompanies = (game, name) => {
 
   return map(
     (c) => ({
-      floatPercent: c.floatPercent || game.floatPercent,
-      abbrev: c.abbrev,
+      float_percent: c.floatPercent || game.floatPercent,
+      sym: c.abbrev,
       name: c.name,
       logo: c.logo ? `${name}/${c.abbrev.replace(LOGO_RE, "")}` : undefined,
-      tokens: map((t) => ({ label: is(Number, t) ? t : 0 }), c.tokens || []),
-      home: findHome(c.abbrev, (game.map || {}).hexes || []),
+      tokens: map((t) => (is(Number, t) ? t : 0), c.tokens || []),
+      coordinates: findHome(c.abbrev, (game.map || {}).hexes || []),
       color: c.color === "white" ? colors["gray"] : colors[c.color],
     }),
     companies
@@ -213,17 +212,9 @@ const compileTrains = (game) => {
         t.distance || (isNaN(parseInt(t.name)) ? 999 : parseInt(t.name)),
       price: t.price || 0,
       rusts_on: t.rust,
-      num: t.quantity === "∞" ? 99 : t.quantity,
+      num: t.quantity === "∞" ? 20 : t.quantity,
       available_on: t.available,
-      discount: t.discount
-        ? mapObjIndexed(
-            (discount, name) => ({
-              name,
-              discount,
-            }),
-            t.discount || {}
-          )
-        : undefined,
+      discount: t.discount,
     }),
     game.trains
   );
@@ -246,23 +237,17 @@ const compileFileName = (name) => {
 
 const tileColors = ["yellow", "green", "brown", "gray"];
 const compilePhases = (game) => {
-  return (
-    JSON.stringify(
-      map(
-        (p) => ({
-          name: p.name || p.train,
-          on: p.on,
-          train_limit: p.limit,
-          tiles: tileColors.slice(0, tileColors.indexOf(p.tiles) + 1),
-          operating_rounds: p.rounds,
-          buy_companies: p.buy_companies,
-          events: p.events,
-        }),
-        game.phases || []
-      ),
-      null,
-      2
-    ) + "\n"
+  return map(
+    (p) => ({
+      name: p.name || p.train,
+      on: p.on,
+      train_limit: p.limit,
+      tiles: tileColors.slice(0, tileColors.indexOf(p.tiles) + 1),
+      operating_rounds: p.rounds,
+      buy_companies: p.buy_companies,
+      events: p.events,
+    }),
+    game.phases || []
   );
 };
 
@@ -284,6 +269,7 @@ const compileHexes = (game) => {
 
     compiled[color][encoding] = concat(compiled[color][encoding], locations);
   });
+  return compiled;
 
   const templated = map(
     (color) => ({
@@ -302,17 +288,22 @@ const compileHexes = (game) => {
   return templated;
 };
 
-const compileGame = (game, name) => {
+const compileGame = (game) => {
+  const filename = compileFileName(game.info.title);
+  const modulename = compileModuleName(game.info.title);
+
   return {
-    ...compileCurrency(game),
-    ...compileBank(game),
-    ...compileCertLimit(game),
-    ...compileStartingCash(game),
+    filename,
+    modulename,
+    currencyFormatStr: compileCurrency(game),
+    bankCash: compileBank(game),
+    certLimit: compileCertLimit(game),
+    startingCash: compileStartingCash(game),
     locationNames: compileLocationNames(game),
     tiles: compileTiles(game),
     market: compileMarket(game),
-    privates: compilePrivates(game),
-    companies: compileCompanies(game, name),
+    companies: compilePrivates(game),
+    corporations: compileCompanies(game, filename),
     trains: compileTrains(game),
     hexes: compileHexes(game),
     phases: compilePhases(game),
@@ -321,13 +312,12 @@ const compileGame = (game, name) => {
 
 // Output the rendered game
 const renderGame = (game) => {
-  const filename = compileFileName(game.info.title);
-  const modulename = compileModuleName(game.info.title);
-  game = compileGame(game, filename);
+  game = compileGame(game);
 
+  // return JSON.stringify(game, null, 2);
   return gameTemplate({
-    game,
-    name: modulename,
+    name: game.modulename,
+    data: JSON.stringify(game, null, 2),
   });
 };
 
