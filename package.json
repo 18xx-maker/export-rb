@@ -32,7 +32,7 @@
     "*.{js,css,md}": "prettier --write"
   },
   "dependencies": {
-    "@18xx-maker/games": "^0.10.0",
+    "@18xx-maker/games": "^1.4.0",
     "commander": "^5.1.0",
     "handlebars": "^4.7.6",
     "ramda": "^0.27.0"
