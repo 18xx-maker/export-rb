@@ -1,10 +1,13 @@
 const handlebars = require("handlebars");
 const gameTemplate = require("../templates/game.hbs");
 
+const makerTiles = require("@18xx-maker/games").tiles;
+
 const any = require("ramda/src/any");
 const assoc = require("ramda/src/assoc");
 const concat = require("ramda/src/concat");
 const contains = require("ramda/src/contains");
+const curry = require("ramda/src/curry");
 const find = require("ramda/src/find");
 const keys = require("ramda/src/keys");
 const map = require("ramda/src/map");
@@ -12,6 +15,56 @@ const mapObjIndexed = require("ramda/src/mapObjIndexed");
 const reduce = require("ramda/src/reduce");
 const is = require("ramda/src/is");
 const chain = require("ramda/src/chain");
+
+const resolveHex = curry((hexes, hex) => {
+  if (hex.copy) {
+    // Find copy
+    let copyHex = find((h) => indexOf(hex.copy, h.hexes) > -1, hexes);
+
+    if (copyHex) {
+      let merged = mergeHex(hex, resolveHex(hexes, copyHex));
+
+      delete merged.copy;
+
+      return merged;
+    }
+  }
+
+  // Nothing to copy
+  return hex;
+});
+
+const getMapHexes = (game, variation) => {
+  variation = variation || 0;
+
+  // Get the relevant map
+  let gameMap = Array.isArray(game.map) ? game.map[variation] : game.map;
+
+  // If the game is map-less, just return an empty object
+  if (!gameMap) {
+    return [];
+  }
+
+  let hexes = map(assoc("variation", variation), gameMap.hexes || []);
+  if (gameMap.copy !== undefined) {
+    hexes = concat(
+      map(assoc("variation", gameMap.copy), game.map[gameMap.copy].hexes),
+      hexes
+    );
+  }
+  if (gameMap.remove !== undefined) {
+    hexes = map((hex) => {
+      return assoc(
+        "hexes",
+        reject((coord) => (gameMap.remove || []).includes(coord), hex.hexes),
+        hex
+      );
+    }, hexes);
+  }
+  hexes = map(resolveHex(hexes), hexes);
+
+  return hexes;
+};
 
 // Load helpers
 const {
@@ -36,7 +89,7 @@ const findName = (hex) => {
 };
 
 // Takes a map and returns each name/hex location
-const compileLocationNames = (game) => {
+const compileLocationNames = (game, opts) => {
   return reduce(
     (names, hex) => {
       let name = findName(hex);
@@ -49,13 +102,17 @@ const compileLocationNames = (game) => {
       };
     },
     {},
-    game.map.hexes
+    getMapHexes(game, opts.map)
   );
 };
 
 const compileTiles = (game) => {
   return reduce(
     (tiles, id) => {
+      if (makerTiles[id] && makerTiles[id].broken) {
+        return tiles;
+      }
+
       let tile = game.tiles[id];
 
       let hex = undefined;
@@ -161,7 +218,7 @@ const colors = {
 
 const LOGO_RE = /[& ]/g;
 
-const compileCompanies = (game, name) => {
+const compileCompanies = (game, name, opts) => {
   let companies = map((company) => {
     if (
       company.minor &&
@@ -211,9 +268,9 @@ const compileCompanies = (game, name) => {
       float_percent: c.floatPercent || game.floatPercent,
       sym: c.abbrev,
       name: c.name,
-      logo: c.logo ? `${name}/${c.abbrev.replace(LOGO_RE, "")}` : undefined,
+      logo: `${name}/${c.abbrev.replace(LOGO_RE, "")}`,
       tokens: map((t) => (is(Number, t) ? t : 0), c.tokens || []),
-      coordinates: findHome(c.abbrev, (game.map || {}).hexes || []),
+      coordinates: findHome(c.abbrev, getMapHexes(game, opts.map)),
       color: c.color,
       text_color: c.textColor,
     }),
@@ -268,10 +325,10 @@ const compilePhases = (game) => {
   );
 };
 
-const compileHexes = (game) => {
+const compileHexes = (game, opts) => {
   let compiled = {};
 
-  game.map.hexes.forEach((hex) => {
+  getMapHexes(game, opts.map).forEach((hex) => {
     let color = compileColor(hex);
     let encoding = compileHex(hex);
     let locations = hex.hexes;
@@ -305,7 +362,7 @@ const compileHexes = (game) => {
   return templated;
 };
 
-const compileGame = (game) => {
+const compileGame = (game, opts) => {
   const filename = compileFileName(game.info.title);
   const modulename = compileModuleName(game.info.title);
 
@@ -316,20 +373,20 @@ const compileGame = (game) => {
     bankCash: compileBank(game),
     certLimit: compileCertLimit(game),
     startingCash: compileStartingCash(game),
-    locationNames: compileLocationNames(game),
+    locationNames: compileLocationNames(game, opts),
     tiles: compileTiles(game),
     market: compileMarket(game),
     companies: compilePrivates(game),
-    corporations: compileCompanies(game, filename),
+    corporations: compileCompanies(game, filename, opts),
     trains: compileTrains(game),
-    hexes: compileHexes(game),
+    hexes: compileHexes(game, opts),
     phases: compilePhases(game),
   };
 };
 
 // Output the rendered game
-const renderGame = (game) => {
-  game = compileGame(game);
+const renderGame = (game, opts) => {
+  game = compileGame(game, opts);
 
   // return JSON.stringify(game, null, 2);
   return gameTemplate({

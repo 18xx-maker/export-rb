@@ -16,8 +16,11 @@ program.command("tiles").action(() => {
 });
 
 // Exports games
-program.command("game <game>").action((game) => {
-  process.stdout.write(exportRb.renderGame(exportRb.games[game]));
-});
+program
+  .command("game <game>")
+  .option("-m, --map <index>", "which map variation to use", 0)
+  .action((game, opts) => {
+    process.stdout.write(exportRb.renderGame(exportRb.games[game], opts));
+  });
 
 program.parse();
