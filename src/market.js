@@ -5,9 +5,15 @@ const map = require("ramda/src/map");
 
 const compileCell = (cell) =>
   cell
-    ? `${cell.value ? cell.value : cell.label ? cell.label : cell}${
-        cell.par ? "p" : ""
-      }${cell.legend !== undefined ? ["y", "o", "b"][cell.legend] : ""}`
+    ? `${
+        cell.value !== undefined
+          ? cell.value
+          : cell.label !== undefined
+          ? cell.label
+          : cell
+      }${cell.par ? "p" : ""}${
+        cell.legend !== undefined ? ["y", "o", "b"][cell.legend] : ""
+      }`
     : "";
 
 const compileRow = (row) => map(compileCell, row);

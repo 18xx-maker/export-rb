@@ -1,6 +1,4 @@
 const handlebars = require("handlebars");
-handlebars.registerPartial("Phases", "{{{game.phases}}}");
-handlebars.registerPartial("Companies", "{{{game.privates}}}");
 const gameTemplate = require("../templates/game.hbs");
 
 const any = require("ramda/src/any");
@@ -63,15 +61,33 @@ const compileTiles = (game) => {
       let hex = undefined;
       let color = undefined;
 
+      let count = tile;
+
+      if (is(Object, tile)) {
+        // Check if we have a color, this means we go full on definition
+        if (tile.color) {
+          count = {
+            count: tile.quantity
+              ? tile.quantity === "∞"
+                ? 20
+                : tile.quantity
+              : 1,
+            color: tile.color,
+            code: compileHex(tile),
+          };
+        } else {
+          // Just quantity
+          count = tile.quantity
+            ? tile.quantity === "∞"
+              ? 20
+              : tile.quantity
+            : 1;
+        }
+      }
+
       return {
         ...tiles,
-        [id]: is(Number, tile)
-          ? tile
-          : {
-              count: tile.quantity || 1,
-              color: tile.color,
-              code: compileHex(tile),
-            },
+        [id]: count,
       };
     },
     {},
@@ -198,7 +214,8 @@ const compileCompanies = (game, name) => {
       logo: c.logo ? `${name}/${c.abbrev.replace(LOGO_RE, "")}` : undefined,
       tokens: map((t) => (is(Number, t) ? t : 0), c.tokens || []),
       coordinates: findHome(c.abbrev, (game.map || {}).hexes || []),
-      color: c.color === "white" ? colors["gray"] : colors[c.color],
+      color: c.color,
+      text_color: c.textColor,
     }),
     companies
   );
