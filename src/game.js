@@ -13,6 +13,7 @@ const keys = require("ramda/src/keys");
 const map = require("ramda/src/map");
 const mapObjIndexed = require("ramda/src/mapObjIndexed");
 const reduce = require("ramda/src/reduce");
+const indexOf = require("ramda/src/indexOf");
 const is = require("ramda/src/is");
 const chain = require("ramda/src/chain");
 
