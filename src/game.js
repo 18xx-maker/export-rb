@@ -171,6 +171,13 @@ const compileLayout = (game) => {
   }
 };
 
+const compileCapitalization = (game) => {
+  if (!game.info.capitalization) {
+    return "full";
+  }
+  return game.info.capitalization;
+};
+
 const compilePrivates = (game) => {
   return map(
     (p) => ({
@@ -387,6 +394,7 @@ const compileGame = (game, opts) => {
     bankCash: compileBank(game),
     certLimit: compileCertLimit(game),
     startingCash: compileStartingCash(game),
+    capitalization: compileCapitalization(game),
     layout: layout,
     locationNames: compileLocationNames(game, opts),
     tiles: compileTiles(game, isFlat),
