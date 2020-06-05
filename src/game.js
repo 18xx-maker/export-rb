@@ -107,7 +107,7 @@ const compileLocationNames = (game, opts) => {
   );
 };
 
-const compileTiles = (game) => {
+const compileTiles = (game, isFlat) => {
   return reduce(
     (tiles, id) => {
       if (makerTiles[id] && makerTiles[id].broken) {
@@ -131,7 +131,7 @@ const compileTiles = (game) => {
                 : tile.quantity
               : 1,
             color: tile.color,
-            code: compileHex(tile),
+            code: compileHex(tile, isFlat),
           };
         } else {
           // Just quantity
@@ -336,12 +336,12 @@ const compilePhases = (game) => {
   );
 };
 
-const compileHexes = (game, opts) => {
+const compileHexes = (game, isFlat, opts) => {
   let compiled = {};
 
   getMapHexes(game, opts.map).forEach((hex) => {
     let color = compileColor(hex);
-    let encoding = compileHex(hex);
+    let encoding = compileHex(hex, isFlat);
     let locations = hex.hexes;
 
     if (!compiled[color]) {
@@ -377,6 +377,9 @@ const compileGame = (game, opts) => {
   const filename = compileFileName(game.info.title);
   const modulename = compileModuleName(game.info.title);
 
+  const layout = compileLayout(game);
+  const isFlat = layout === "flat";
+
   return {
     filename,
     modulename,
@@ -384,14 +387,14 @@ const compileGame = (game, opts) => {
     bankCash: compileBank(game),
     certLimit: compileCertLimit(game),
     startingCash: compileStartingCash(game),
-    layout: compileLayout(game),
+    layout: layout,
     locationNames: compileLocationNames(game, opts),
-    tiles: compileTiles(game),
+    tiles: compileTiles(game, isFlat),
     market: compileMarket(game),
     companies: compilePrivates(game),
     corporations: compileCompanies(game, filename, opts),
     trains: compileTrains(game),
-    hexes: compileHexes(game, opts),
+    hexes: compileHexes(game, isFlat, opts),
     phases: compilePhases(game),
   };
 };

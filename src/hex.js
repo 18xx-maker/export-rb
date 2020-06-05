@@ -140,10 +140,10 @@ const compileTrackGauge = (gauge) => {
   }
 };
 
-const compileTrackSides = (t, r) => {
+const compileTrackSides = (t, r, isFlat) => {
   // Check if we have a revenue center to deal with
   const hasRevenue = !isNaN(r);
-  const side = t.side || 1;
+  const side = (t.side || 1) + (isFlat ? 0 : 1);
 
   // Now switch on type
   switch (t.type) {
@@ -158,7 +158,7 @@ const compileTrackSides = (t, r) => {
   }
 };
 
-const compileTrack = (hex) => {
+const compileTrack = (hex, isFlat) => {
   if (!hex.track) {
     return [];
   }
@@ -170,7 +170,7 @@ const compileTrack = (hex) => {
     // Simple for now, just let every track cycle
     // between revenue locations
     let revenue = i % numRevenue;
-    let sides = compileTrackSides(t, revenue);
+    let sides = compileTrackSides(t, revenue, isFlat);
 
     return map((s) => {
       return `p=${s}${compileTrackGauge(t.gauge)}`;
@@ -191,7 +191,7 @@ const compileColor = (hex) => {
   }
 };
 
-const compileHex = (hex) => {
+const compileHex = (hex, isFlat) => {
   if (hex.encoding) {
     return hex.encoding;
   }
@@ -200,7 +200,7 @@ const compileHex = (hex) => {
     ...compileOffboard(hex),
     ...compileCities(hex),
     ...compileTowns(hex),
-    ...compileTrack(hex),
+    ...compileTrack(hex, isFlat),
     ...compileLabels(hex),
     ...compileTerrain(hex),
   ];
