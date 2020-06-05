@@ -161,6 +161,16 @@ const compileCurrency = (game) => {
   return game.info.currency.replace(/\#/, "%d");
 };
 
+const compileLayout = (game) => {
+  if (game.info.orientation === "horizontal") {
+    return "flat";
+  } else if (game.info.orientation === "vertical") {
+    return "pointy";
+  } else {
+    return "pointy";
+  }
+};
+
 const compilePrivates = (game) => {
   return map(
     (p) => ({
@@ -374,6 +384,7 @@ const compileGame = (game, opts) => {
     bankCash: compileBank(game),
     certLimit: compileCertLimit(game),
     startingCash: compileStartingCash(game),
+    layout: compileLayout(game),
     locationNames: compileLocationNames(game, opts),
     tiles: compileTiles(game),
     market: compileMarket(game),
