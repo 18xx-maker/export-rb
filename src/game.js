@@ -178,6 +178,13 @@ const compileCapitalization = (game) => {
   return game.info.capitalization;
 };
 
+const compileMustSellInBlocks = (game) => {
+  if (!game.info.mustSellInBlocks) {
+    return false;
+  }
+  return game.info.mustSellInBlocks;
+};
+
 const compilePrivates = (game) => {
   return map(
     (p) => ({
@@ -396,6 +403,7 @@ const compileGame = (game, opts) => {
     startingCash: compileStartingCash(game),
     capitalization: compileCapitalization(game),
     layout: layout,
+    mustSellInBlocks: compileMustSellInBlocks(game),
     locationNames: compileLocationNames(game, opts),
     tiles: compileTiles(game, isFlat),
     market: compileMarket(game),
