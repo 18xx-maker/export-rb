@@ -32,12 +32,35 @@ const compileTowns = (hex) => {
   let values = getValues(hex);
 
   return addIndex(map)((t, i) => {
-    let town = "t=r:" + (values[i] || values[0] || 0);
+    let revenue;
+    if (hex.offBoardRevenue) {
+      revenue = compileMultiRevenue(hex.offBoardRevenue);
+    } else {
+      revenue = values[i] || values[0] || 0;
+    }
+
+    let town = `t=r:${revenue}`;
     if (t.group) {
       town += `,g:${t.group}`;
     }
     return town;
   }, concat(hex.centerTowns || [], hex.towns || []));
+};
+
+const compileMultiRevenue = (offboardRevenue) => {
+  const colors = map((r) => {
+    if (`${r.value || r.revenue || r.cost || 0}`.match(/^D/)) {
+      return `diesel_${r.cost.replace(/^D/, "")}`;
+    }
+    return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
+  }, offboardRevenue.revenues);
+
+  let multiRevenue = colors.join("|");
+  if (offboardRevenue.hidden) {
+    multiRevenue += ",h:1";
+  }
+
+  return multiRevenue;
 };
 
 const compileCities = (hex) => {
@@ -48,7 +71,14 @@ const compileCities = (hex) => {
   let values = getValues(hex);
 
   return addIndex(map)((c, i) => {
-    let city = "c=r:" + (values[i] || values[0] || 0);
+    let revenue;
+    if (hex.offBoardRevenue) {
+      revenue = compileMultiRevenue(hex.offBoardRevenue);
+    } else {
+      revenue = values[i] || values[0] || 0;
+    }
+
+    let city = `c=r:${revenue}`;
     if (c.size > 1) {
       city += `,s:${c.size}`;
     }
@@ -85,23 +115,16 @@ const compileTerrain = (hex) => {
 };
 
 const compileOffboard = (hex) => {
-  if (!hex.offBoardRevenue) {
+  if (!hex.offBoardRevenue || hex.cities || hex.towns || hex.centerTowns) {
     return [];
   }
 
-  let colors = map((r) => {
-    if (`${r.value || r.revenue || r.cost || 0}`.match(/^D/)) {
-      return `diesel_${r.cost.replace(/^D/, "")}`;
-    }
-    return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
-  }, hex.offBoardRevenue.revenues);
-
-  const hidden = hex.offBoardRevenue.hidden ? ",h:1" : "";
+  const revenue = compileMultiRevenue(hex.offBoardRevenue);
 
   const group = hex.offBoardRevenue.group;
   const g = group ? `,g:${group}` : "";
 
-  return [`o=r:${colors.join("|")}${g}${hidden}`];
+  return [`o=r:${revenue}${g}`];
 };
 
 const compileLabels = (hex) => {
