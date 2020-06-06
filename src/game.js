@@ -83,7 +83,10 @@ const findName = (hex) => {
     ...(hex.cities || []),
     ...(hex.centerTowns || []),
     ...(hex.towns || []),
-    ...(hex.offBoardRevenue ? [hex.offBoardRevenue] : []),
+    ...(hex.offBoardRevenue && !hex.offBoardRevenue.hidden
+      ? [hex.offBoardRevenue]
+      : []),
+    ...map((n) => ({ name: n }), hex.names || []),
   ];
   let names = chain((p) => (p.name ? [p.name.name] : []), possibles);
   return names.join(" & ");
@@ -107,7 +110,7 @@ const compileLocationNames = (game, opts) => {
   );
 };
 
-const compileTiles = (game) => {
+const compileTiles = (game, isFlat) => {
   return reduce(
     (tiles, id) => {
       if (makerTiles[id] && makerTiles[id].broken) {
@@ -131,7 +134,7 @@ const compileTiles = (game) => {
                 : tile.quantity
               : 1,
             color: tile.color,
-            code: compileHex(tile),
+            code: compileHex(tile, isFlat),
           };
         } else {
           // Just quantity
@@ -159,6 +162,30 @@ const compileCurrency = (game) => {
   }
 
   return game.info.currency.replace(/\#/, "%d");
+};
+
+const compileLayout = (game) => {
+  if (game.info.orientation === "horizontal") {
+    return "flat";
+  } else if (game.info.orientation === "vertical") {
+    return "pointy";
+  } else {
+    return "pointy";
+  }
+};
+
+const compileCapitalization = (game) => {
+  if (!game.info.capitalization) {
+    return "full";
+  }
+  return game.info.capitalization;
+};
+
+const compileMustSellInBlocks = (game) => {
+  if (!game.info.mustSellInBlocks) {
+    return false;
+  }
+  return game.info.mustSellInBlocks;
 };
 
 const compilePrivates = (game) => {
@@ -326,12 +353,12 @@ const compilePhases = (game) => {
   );
 };
 
-const compileHexes = (game, opts) => {
+const compileHexes = (game, isFlat, opts) => {
   let compiled = {};
 
   getMapHexes(game, opts.map).forEach((hex) => {
     let color = compileColor(hex);
-    let encoding = compileHex(hex);
+    let encoding = compileHex(hex, isFlat);
     let locations = hex.hexes;
 
     if (!compiled[color]) {
@@ -367,6 +394,9 @@ const compileGame = (game, opts) => {
   const filename = compileFileName(game.info.title);
   const modulename = compileModuleName(game.info.title);
 
+  const layout = compileLayout(game);
+  const isFlat = layout === "flat";
+
   return {
     filename,
     modulename,
@@ -374,13 +404,16 @@ const compileGame = (game, opts) => {
     bankCash: compileBank(game),
     certLimit: compileCertLimit(game),
     startingCash: compileStartingCash(game),
+    capitalization: compileCapitalization(game),
+    layout: layout,
+    mustSellInBlocks: compileMustSellInBlocks(game),
     locationNames: compileLocationNames(game, opts),
-    tiles: compileTiles(game),
+    tiles: compileTiles(game, isFlat),
     market: compileMarket(game),
     companies: compilePrivates(game),
     corporations: compileCompanies(game, filename, opts),
     trains: compileTrains(game),
-    hexes: compileHexes(game, opts),
+    hexes: compileHexes(game, isFlat, opts),
     phases: compilePhases(game),
   };
 };

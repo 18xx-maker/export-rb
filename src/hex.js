@@ -32,8 +32,41 @@ const compileTowns = (hex) => {
   let values = getValues(hex);
 
   return addIndex(map)((t, i) => {
-    return "t=r:" + (values[i] || values[0] || 0);
+    let revenue;
+    if (hex.offBoardRevenue) {
+      revenue = compileMultiRevenue(hex.offBoardRevenue);
+    } else {
+      revenue = values[i] || values[0] || 0;
+    }
+
+    let town = `t=r:${revenue}`;
+    town += compileGroups(t.groups);
+
+    return town;
   }, concat(hex.centerTowns || [], hex.towns || []));
+};
+
+const compileGroups = (groups) => {
+  if (!groups) {
+    return "";
+  }
+  return `,g:${groups.join("|")}`;
+};
+
+const compileMultiRevenue = (offboardRevenue) => {
+  const colors = map((r) => {
+    if (`${r.value || r.revenue || r.cost || 0}`.match(/^D/)) {
+      return `diesel_${r.cost.replace(/^D/, "")}`;
+    }
+    return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
+  }, offboardRevenue.revenues);
+
+  let multiRevenue = colors.join("|");
+  if (offboardRevenue.hidden) {
+    multiRevenue += ",h:1";
+  }
+
+  return multiRevenue;
 };
 
 const compileCities = (hex) => {
@@ -44,10 +77,18 @@ const compileCities = (hex) => {
   let values = getValues(hex);
 
   return addIndex(map)((c, i) => {
-    let city = "c=r:" + (values[i] || values[0] || 0);
+    let revenue;
+    if (hex.offBoardRevenue) {
+      revenue = compileMultiRevenue(hex.offBoardRevenue);
+    } else {
+      revenue = values[i] || values[0] || 0;
+    }
+
+    let city = `c=r:${revenue}`;
     if (c.size > 1) {
       city += `,s:${c.size}`;
     }
+    city += compileGroups(c.groups);
     return city;
   }, hex.cities);
 };
@@ -78,18 +119,15 @@ const compileTerrain = (hex) => {
 };
 
 const compileOffboard = (hex) => {
-  if (!hex.offBoardRevenue) {
+  if (!hex.offBoardRevenue || hex.cities || hex.towns || hex.centerTowns) {
     return [];
   }
 
-  let colors = map((r) => {
-    if (`${r.value || r.revenue || r.cost || 0}`.match(/^D/)) {
-      return `diesel_${r.cost.replace(/^D/, "")}`;
-    }
-    return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
-  }, hex.offBoardRevenue.revenues);
+  const revenue = compileMultiRevenue(hex.offBoardRevenue);
 
-  return [`o=r:${colors.join("|")}`];
+  const g = compileGroups(hex.offBoardRevenue.groups);
+
+  return [`o=r:${revenue}${g}`];
 };
 
 const compileLabels = (hex) => {
@@ -140,10 +178,10 @@ const compileTrackGauge = (gauge) => {
   }
 };
 
-const compileTrackSides = (t, r) => {
+const compileTrackSides = (t, r, isFlat) => {
   // Check if we have a revenue center to deal with
   const hasRevenue = !isNaN(r);
-  const side = t.side || 1;
+  const side = (t.side || 1) + (isFlat ? 0 : 1);
 
   // Now switch on type
   switch (t.type) {
@@ -158,7 +196,7 @@ const compileTrackSides = (t, r) => {
   }
 };
 
-const compileTrack = (hex) => {
+const compileTrack = (hex, isFlat) => {
   if (!hex.track) {
     return [];
   }
@@ -170,7 +208,7 @@ const compileTrack = (hex) => {
     // Simple for now, just let every track cycle
     // between revenue locations
     let revenue = i % numRevenue;
-    let sides = compileTrackSides(t, revenue);
+    let sides = compileTrackSides(t, revenue, isFlat);
 
     return map((s) => {
       return `p=${s}${compileTrackGauge(t.gauge)}`;
@@ -191,7 +229,16 @@ const compileColor = (hex) => {
   }
 };
 
-const compileHex = (hex) => {
+const compileRemoveBorders = (hex, isFlat) => {
+  if (!hex.removeBorders) {
+    return [];
+  }
+  const border = (hex.removeBorders[0] - (isFlat ? 1 : 0)) % 6;
+
+  return [`b=e:${border}`];
+};
+
+const compileHex = (hex, isFlat) => {
   if (hex.encoding) {
     return hex.encoding;
   }
@@ -200,9 +247,10 @@ const compileHex = (hex) => {
     ...compileOffboard(hex),
     ...compileCities(hex),
     ...compileTowns(hex),
-    ...compileTrack(hex),
+    ...compileTrack(hex, isFlat),
     ...compileLabels(hex),
     ...compileTerrain(hex),
+    ...compileRemoveBorders(hex, isFlat),
   ];
 
   let result = all.join(";");
