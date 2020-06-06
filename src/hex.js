@@ -197,7 +197,7 @@ const compileRemoveBorders = (hex, isFlat) => {
   if (!hex.removeBorders) {
     return [];
   }
-  const border = (hex.removeBorders[0] + (isFlat ? 1 : 0)) % 6;
+  const border = (hex.removeBorders[0] - (isFlat ? 1 : 0)) % 6;
 
   return [`b=e:${border}`];
 };
