@@ -32,7 +32,11 @@ const compileTowns = (hex) => {
   let values = getValues(hex);
 
   return addIndex(map)((t, i) => {
-    return "t=r:" + (values[i] || values[0] || 0);
+    let town = "t=r:" + (values[i] || values[0] || 0);
+    if (t.group) {
+      town += `,g:${t.group}`;
+    }
+    return town;
   }, concat(hex.centerTowns || [], hex.towns || []));
 };
 
@@ -47,6 +51,9 @@ const compileCities = (hex) => {
     let city = "c=r:" + (values[i] || values[0] || 0);
     if (c.size > 1) {
       city += `,s:${c.size}`;
+    }
+    if (c.group) {
+      city += `,g:${c.group}`;
     }
     return city;
   }, hex.cities);
@@ -91,7 +98,10 @@ const compileOffboard = (hex) => {
 
   const hidden = hex.offBoardRevenue.hidden ? ",h:1" : "";
 
-  return [`o=r:${colors.join("|")}${hidden}`];
+  const group = hex.offBoardRevenue.group;
+  const g = group ? `,g:${group}` : "";
+
+  return [`o=r:${colors.join("|")}${g}${hidden}`];
 };
 
 const compileLabels = (hex) => {
