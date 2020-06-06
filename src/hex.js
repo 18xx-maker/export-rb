@@ -89,7 +89,9 @@ const compileOffboard = (hex) => {
     return `${r.color}_${r.value || r.revenue || r.cost || 0}`;
   }, hex.offBoardRevenue.revenues);
 
-  return [`o=r:${colors.join("|")}`];
+  const hidden = hex.offBoardRevenue.hidden ? ",h:1" : "";
+
+  return [`o=r:${colors.join("|")}${hidden}`];
 };
 
 const compileLabels = (hex) => {
@@ -191,6 +193,15 @@ const compileColor = (hex) => {
   }
 };
 
+const compileRemoveBorders = (hex, isFlat) => {
+  if (!hex.removeBorders) {
+    return [];
+  }
+  const border = (hex.removeBorders[0] + (isFlat ? 1 : 0)) % 6;
+
+  return [`b=e:${border}`];
+};
+
 const compileHex = (hex, isFlat) => {
   if (hex.encoding) {
     return hex.encoding;
@@ -203,6 +214,7 @@ const compileHex = (hex, isFlat) => {
     ...compileTrack(hex, isFlat),
     ...compileLabels(hex),
     ...compileTerrain(hex),
+    ...compileRemoveBorders(hex, isFlat),
   ];
 
   let result = all.join(";");
