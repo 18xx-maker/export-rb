@@ -84,6 +84,7 @@ const findName = (hex) => {
     ...(hex.centerTowns || []),
     ...(hex.towns || []),
     ...(hex.offBoardRevenue ? [hex.offBoardRevenue] : []),
+    ...map((n) => ({ name: n }), hex.names || []),
   ];
   let names = chain((p) => (p.name ? [p.name.name] : []), possibles);
   return names.join(" & ");
