@@ -40,11 +40,17 @@ const compileTowns = (hex) => {
     }
 
     let town = `t=r:${revenue}`;
-    if (t.group) {
-      town += `,g:${t.group}`;
-    }
+    town += compileGroups(t.groups);
+
     return town;
   }, concat(hex.centerTowns || [], hex.towns || []));
+};
+
+const compileGroups = (groups) => {
+  if (!groups) {
+    return "";
+  }
+  return `,g:${groups.join("|")}`;
 };
 
 const compileMultiRevenue = (offboardRevenue) => {
@@ -82,9 +88,7 @@ const compileCities = (hex) => {
     if (c.size > 1) {
       city += `,s:${c.size}`;
     }
-    if (c.group) {
-      city += `,g:${c.group}`;
-    }
+    city += compileGroups(c.groups);
     return city;
   }, hex.cities);
 };
@@ -121,8 +125,7 @@ const compileOffboard = (hex) => {
 
   const revenue = compileMultiRevenue(hex.offBoardRevenue);
 
-  const group = hex.offBoardRevenue.group;
-  const g = group ? `,g:${group}` : "";
+  const g = compileGroups(hex.offBoardRevenue.groups);
 
   return [`o=r:${revenue}${g}`];
 };
