@@ -114,7 +114,7 @@ const compileTerrain = (hex) => {
   }
 
   if (types.length > 0) {
-    result.push(`terrain:${types.join("+")}`);
+    result.push(`terrain:${types.join("|")}`);
   }
 
   return [result.join(",")];
