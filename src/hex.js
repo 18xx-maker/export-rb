@@ -39,7 +39,7 @@ const compileTowns = (hex) => {
       revenue = values[i] || values[0] || 0;
     }
 
-    let town = `t=r:${revenue}`;
+    let town = `town=revenue:${revenue}`;
     town += compileGroups(t.groups);
 
     return town;
@@ -50,7 +50,7 @@ const compileGroups = (groups) => {
   if (!groups) {
     return "";
   }
-  return `,g:${groups.join("|")}`;
+  return `,groups:${groups.join("|")}`;
 };
 
 const compileMultiRevenue = (offboardRevenue) => {
@@ -63,7 +63,7 @@ const compileMultiRevenue = (offboardRevenue) => {
 
   let multiRevenue = colors.join("|");
   if (offboardRevenue.hidden) {
-    multiRevenue += ",h:1";
+    multiRevenue += ",hide:1";
   }
 
   return multiRevenue;
@@ -84,9 +84,9 @@ const compileCities = (hex) => {
       revenue = values[i] || values[0] || 0;
     }
 
-    let city = `c=r:${revenue}`;
+    let city = `city=revenue:${revenue}`;
     if (c.size > 1) {
-      city += `,s:${c.size}`;
+      city += `,slots:${c.size}`;
     }
     city += compileGroups(c.groups);
     return city;
@@ -108,11 +108,11 @@ const compileTerrain = (hex) => {
   let result = [];
   let cost = find((t) => t.cost, hex.terrain);
   if (cost) {
-    result.push(`u=c:${cost.cost}`);
+    result.push(`upgrade=cost:${cost.cost}`);
   }
 
   if (types.length > 0) {
-    result.push(`t:${types.join("+")}`);
+    result.push(`terrain:${types.join("+")}`);
   }
 
   return [result.join(",")];
@@ -127,7 +127,7 @@ const compileOffboard = (hex) => {
 
   const g = compileGroups(hex.offBoardRevenue.groups);
 
-  return [`o=r:${revenue}${g}`];
+  return [`offboard=revenue:${revenue}${g}`];
 };
 
 const compileLabels = (hex) => {
@@ -136,7 +136,7 @@ const compileLabels = (hex) => {
   }
 
   return map((l) => {
-    return `l=${l.label}`;
+    return `label=${l.label}`;
   }, hex.labels);
 };
 
@@ -160,22 +160,14 @@ const ab = (a, b) => {
 
 const aj = (a) => {
   a = (a - 1) % 6;
-  return [`a:${a},b:j`];
+  return [`a:${a},b:junction`];
 };
 
 const compileTrackGauge = (gauge) => {
-  switch (gauge) {
-    case "narrow":
-      return ",t:n";
-    case "dual":
-      return ",t:d";
-    case "line":
-      return ",t:l";
-    case "dashed":
-      return ",t:-";
-    default:
-      return "";
+  if (!gauge) {
+    return "";
   }
+  return `,track:${gauge}`;
 };
 
 const compileTrackSides = (t, r, isFlat) => {
@@ -211,7 +203,7 @@ const compileTrack = (hex, isFlat) => {
     let sides = compileTrackSides(t, revenue, isFlat);
 
     return map((s) => {
-      return `p=${s}${compileTrackGauge(t.gauge)}`;
+      return `path=${s}${compileTrackGauge(t.gauge)}`;
     }, sides);
   }, hex.track);
 };
@@ -233,9 +225,9 @@ const compileRemoveBorders = (hex, isFlat) => {
   if (!hex.removeBorders) {
     return [];
   }
-  const border = (hex.removeBorders[0] - (isFlat ? 1 : 0)) % 6;
+  const edge = (hex.removeBorders[0] - (isFlat ? 1 : 0)) % 6;
 
-  return [`b=e:${border}`];
+  return [`border=edge:${edge}`];
 };
 
 const compileHex = (hex, isFlat) => {
@@ -254,17 +246,6 @@ const compileHex = (hex, isFlat) => {
   ];
 
   let result = all.join(";");
-
-  switch (result) {
-    case "":
-      return "blank";
-    case "c=r:0":
-      return "city";
-    case "t=r:0":
-      return "town";
-    default:
-      return result;
-  }
 
   return result;
 };
