@@ -24,7 +24,7 @@ const compileTiles = (tiles) => {
 
     colors[color][id] = {
       id,
-      encoding: hex.compileHex(tile),
+      encoding: hex.compileHex(tile, true),
       broken: tile.broken,
     };
   }, tiles);
