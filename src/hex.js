@@ -4,6 +4,8 @@ const concat = require("ramda/src/concat");
 const map = require("ramda/src/map");
 const chain = require("ramda/src/chain");
 const find = require("ramda/src/find");
+const any = require("ramda/src/any");
+const has = require("ramda/src/has");
 
 const terrainMapping = {
   river: "water",
@@ -160,7 +162,7 @@ const ab = (a, b) => {
 
 const aj = (a) => {
   a = (a - 1) % 6;
-  return [`a:${a},b:junction`];
+  return [`a:${a},b:_0`];
 };
 
 const compileTrackGauge = (gauge) => {
@@ -230,12 +232,29 @@ const compileRemoveBorders = (hex, isFlat) => {
   return [`border=edge:${edge}`];
 };
 
+const compileJunction = (hex) => {
+  if (!hex.track) {
+    return [];
+  }
+
+  if (hex.cities || hex.towns || hex.centerTowns || hex.offBoardRevenue) {
+    return [];
+  }
+
+  if (any(has("type"), hex.track)) {
+    return [];
+  }
+
+  return ["junction"];
+};
+
 const compileHex = (hex, isFlat) => {
   if (hex.encoding) {
     return hex.encoding;
   }
 
   let all = [
+    ...compileJunction(hex),
     ...compileOffboard(hex),
     ...compileCities(hex),
     ...compileTowns(hex),
