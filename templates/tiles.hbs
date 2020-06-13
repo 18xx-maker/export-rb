@@ -9,11 +9,11 @@ module Engine
     module Tile
       WHITE = {
         'blank' => '',
-        'town' => 't=r:0',
-        'city' => 'c=r:0',
+        'city' => 'city=revenue:0',
+        'town' => 'town=revenue:0',
       }.freeze
 
-      # Red tiles don't exist yet
+      BLUE = {}.freeze
       RED = {}.freeze
 
       {{#each colors}}

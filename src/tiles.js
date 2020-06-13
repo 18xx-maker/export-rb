@@ -13,27 +13,6 @@ const toModule = (name) =>
 
 // Create the json structure needed for our tiles template
 const compileTiles = (tiles) => {
-  let data = [
-    {
-      name: "white",
-      module: "WHITE",
-      tiles: [
-        {
-          id: "blank",
-          encoding: "",
-        },
-        {
-          id: "town",
-          encoding: "t=r:0",
-        },
-        {
-          id: "city",
-          encoding: "c=r:0",
-        },
-      ],
-    },
-  ];
-
   let colors = {};
 
   forEachObjIndexed((tile, id) => {
@@ -45,7 +24,7 @@ const compileTiles = (tiles) => {
 
     colors[color][id] = {
       id,
-      encoding: hex.compileHex(tile),
+      encoding: hex.compileHex(tile, true),
       broken: tile.broken,
     };
   }, tiles);
