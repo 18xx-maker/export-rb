@@ -1,0 +1,19 @@
+cache:
+  yarn: true
+  directories:
+  - node_modules
+language: node_js
+node_js:
+- '10'
+- '12'
+- '14'
+deploy:
+  provider: npm
+  email: kelsin@valefor.com
+  api_key:
+    secure: X4SAS/fAAMSo2OKYiOehZ7fvXJVFkG7jXEbcQbUNy9kpUGrKUNr1W9a7AT1YG7/UpV1VNbRd3GOMSIIsDiLOzmdIij+m5FeiAmLiCpyRHBD0SAZdwuG0W8cFQQaMofIIEHMmAbIKUPpaSPFkh970F7R1cT+Q+kDdc4KrQu1dgSsEBOsoy0DQKutJNUA+lsqsv+vnIP2CqIM77f3ug2cu2ODV9Gwo8eAJmkwmGupOYxk310lljAnTMao+IBY7fsrLfwNqVsHtwMnbl2cEcVGHV3Wtl/axS9hVHd/oh58ykfj5GlKL+399G6QKyXGyA/ds3NOYmI5jDru52NhQypayfUbnfKrs5t7JagpNB25MDjh7jf9M8C9l0CgHq7ya6XpXI3sxFkGAiBBPX3GJuxYbKlaYxOZLyd0TcvtVdAe3oPOzS7m0DzlHSwhNCsinVlzvW9OVQBkZ7NOpNi5xjC0b3lK3cRy4xF7ynoHTA7j8f0hUo1kqVgPsH5gxEQ7IXXbzrIeIqKFyj9uQ4H5SLEUSiggww9teX4tH/4mBuCOwWmFtX0w6oAAJSR7z0Elfjf1gzP5QMHDkxhaM5NFJXK/PvXXXmN22Eh5t0aDsgJWUmq+3Zu5l4cq+L8hrlH3bzjVWTSnhd5YT8Y1e2ZBqDJF2kNQIvCkHqS+sUQrILsMYmwc=
+  on:
+    tags: true
+    repo: 18xx-maker/export-rb
+    node_js: '12'
+  skip_cleanup: 'true'
