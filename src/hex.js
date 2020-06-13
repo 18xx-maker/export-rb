@@ -255,17 +255,6 @@ const compileHex = (hex, isFlat) => {
 
   let result = all.join(";");
 
-  switch (result) {
-    case "":
-      return "blank";
-    case "c=r:0":
-      return "city";
-    case "t=r:0":
-      return "town";
-    default:
-      return result;
-  }
-
   return result;
 };
 
