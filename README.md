@@ -1,5 +1,10 @@
 # 18xx-maker/export-rb
 
+[![build](https://travis-ci.org/18xx-maker/export-rb.svg?branch=master)](https://travis-ci.org/18xx-maker/export-rb)
+![version](https://img.shields.io/npm/v/@18xx-maker/export-rb)
+![downloads](https://img.shields.io/npm/dt/@18xx-maker/export-rb)
+![license](https://img.shields.io/npm/l/@18xx-maker/export-rb)
+
 This package exports files needed to load 18xx-maker data into ruby projects,
 specifically in the format that [18xx.games](https://www.18xx.games/) requires.
 
